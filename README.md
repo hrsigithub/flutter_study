@@ -30,3 +30,5 @@ samples, guidance on mobile development, and a full API reference.
 
 ## 使用パッケージ
 flutter pub add dio
+flutter pub add path_provider
+flutter pub add share_plus
