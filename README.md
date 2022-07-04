@@ -14,3 +14,19 @@ A few resources to get you started if this is your first Flutter project:
 For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
+
+--
+# 学習メモ
+
+変更しない変数には final 付与
+ ->constと同様か？
+
+非同期は Future型
+
+画面更新は
+    setState(() {});
+
+
+
+## 使用パッケージ
+flutter pub add dio

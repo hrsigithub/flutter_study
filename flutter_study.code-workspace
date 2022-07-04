@@ -4,5 +4,14 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"cSpell.words": [
+			"ARGB",
+			"cupertino",
+			"Janken",
+			"Pixabay",
+			"Schyler"
+		]
+	},
+	
 }

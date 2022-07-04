@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:math';
 import 'package:flutter/material.dart';
 
@@ -40,7 +42,7 @@ class _JankenPageState extends State<JankenPage> {
     }
   }
 
-    String _cvResult(JankenResult type) {
+  String _cvResult(JankenResult type) {
     switch (type) {
       case JankenResult.WIN:
         return "おめーの勝ち！";
