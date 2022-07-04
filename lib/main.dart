@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -33,16 +34,43 @@ class PixabayPage extends StatefulWidget {
 }
 
 class _PixabayPageState extends State<PixabayPage> {
-  List hits = [];
+  List<PixabayImage> pixabayImages = [];
 
   // 非同期通信
   Future<void> fetchImages(String text) async {
-    Response res = await Dio().get(
-        'https://pixabay.com/api/?key=28425771-40ceff02fb1e573677953406f&q=$text&image_type=photo');
+    final res = await Dio().get(
+        'https://pixabay.com/api/',
+        queryParameters: {
+          'key' : '28425771-40ceff02fb1e573677953406f',
+          'q' : text,
+          'mage_type': 'photo',
+          'per_page' : 100,
+          'lang' : 'ja',
 
-    hits = res.data['hits'];
+        });
+
+    final hits = res.data['hits'] as List;
+
+    pixabayImages = hits.map((e) {
+      return PixabayImage.fromMap(e);
+    }).toList();
 
     setState(() {});
+  }
+
+// 画像をシェアする。
+  Future<void> shareImage(String url) async {
+    // URL から画像をダウンロード
+    final res = await Dio()
+        .get(url, options: Options(responseType: ResponseType.bytes));
+
+    // ファイルに保存
+    final dir = await getTemporaryDirectory();
+    final file =
+        await File('${dir.path}' + '/image.png').writeAsBytes(res.data);
+
+    // Share
+    Share.shareFiles([file.path]);
   }
 
   // 初回にここ動作（最初に１回だけコール）
@@ -71,31 +99,22 @@ class _PixabayPageState extends State<PixabayPage> {
       body: GridView.builder(
         gridDelegate:
             const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-        itemCount: hits.length,
+        itemCount: pixabayImages.length,
         itemBuilder: (context, index) {
-          Map<String, dynamic> hit = hits[index];
+          final pixabayImage = pixabayImages[index];
 
           return InkWell(
             onTap: () async {
-              print(hit['likes']);
+              // 画像のタップ処理
+              print(pixabayImage.likes);
 
-              // URL から画像をダウンロード
-              Response res = await Dio().get(hit['webformatURL'],
-                  options: Options(responseType: ResponseType.bytes));
-
-              // ファイルに保存
-              Directory dir = await getTemporaryDirectory();
-              File file = await File('${dir.path}' + '/image.png')
-                  .writeAsBytes(res.data);
-
-              // Share
-              Share.shareFiles([file.path]);
+              shareImage(pixabayImage.webformatURL);
             },
             child: Stack(
               fit: StackFit.expand,
               children: [
                 Image.network(
-                  hit['previewURL'],
+                  pixabayImage.previewURL,
                   fit: BoxFit.cover,
                 ),
                 Align(
@@ -111,7 +130,7 @@ class _PixabayPageState extends State<PixabayPage> {
                             color: Colors.red,
                           ),
                           const SizedBox(width: 8),
-                          Text('${hit['likes']}'),
+                          Text('${pixabayImage.likes}'),
                         ],
                       )),
                 ),
@@ -121,5 +140,23 @@ class _PixabayPageState extends State<PixabayPage> {
         },
       ),
     );
+  }
+}
+
+class PixabayImage {
+  final String webformatURL;
+  final String previewURL;
+  final int likes;
+
+  PixabayImage(
+      {required this.webformatURL,
+      required this.previewURL,
+      required this.likes});
+
+  factory PixabayImage.fromMap(Map<String, dynamic> map) {
+    return PixabayImage(
+        likes: map['likes'],
+        previewURL: map['previewURL'],
+        webformatURL: map['webformatURL']);
   }
 }
