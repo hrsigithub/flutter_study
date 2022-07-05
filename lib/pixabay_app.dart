@@ -1,12 +1,9 @@
-
-
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-
 
 class PixabayApp extends StatelessWidget {
   const PixabayApp({Key? key}) : super(key: key);
@@ -31,16 +28,13 @@ class _PixabayPageState extends State<PixabayPage> {
 
   // 非同期通信
   Future<void> fetchImages(String text) async {
-    final res = await Dio().get(
-        'https://pixabay.com/api/',
-        queryParameters: {
-          'key' : '28425771-40ceff02fb1e573677953406f',
-          'q' : text,
-          'mage_type': 'photo',
-          'per_page' : 100,
-          'lang' : 'ja',
-
-        });
+    final res = await Dio().get('https://pixabay.com/api/', queryParameters: {
+      'key': '28425771-40ceff02fb1e573677953406f',
+      'q': text,
+      'mage_type': 'photo',
+      'per_page': 100,
+      'lang': 'ja',
+    });
 
     final hits = res.data['hits'] as List;
 
@@ -124,6 +118,13 @@ class _PixabayPageState extends State<PixabayPage> {
                           ),
                           const SizedBox(width: 8),
                           Text('${pixabayImage.likes}'),
+                          const SizedBox(width: 8),
+                          const Icon(
+                            Icons.download_done,
+                            size: 14,
+                            color: Colors.blueAccent
+                          ),
+                          Text('${pixabayImage.downloads}'),
                         ],
                       )),
                 ),
@@ -140,19 +141,20 @@ class PixabayImage {
   final String webformatURL;
   final String previewURL;
   final int likes;
+  final int downloads;
 
   PixabayImage(
       {required this.webformatURL,
       required this.previewURL,
-      required this.likes});
+      required this.likes, required this.downloads}      
+      );
 
   factory PixabayImage.fromMap(Map<String, dynamic> map) {
     return PixabayImage(
         likes: map['likes'],
         previewURL: map['previewURL'],
-        webformatURL: map['webformatURL']);
+        webformatURL: map['webformatURL'],
+        downloads: map['downloads'],
+        );
   }
 }
-
-
-
